@@ -1,0 +1,60 @@
+{"frames": [
+
+{
+	"filename": "ShengLi0001.png",
+	"frame": {"x":0,"y":0,"w":387,"h":424},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":0,"w":387,"h":424},
+	"sourceSize": {"w":389,"h":424}
+},
+{
+	"filename": "ShengLi0002.png",
+	"frame": {"x":0,"y":426,"w":241,"h":260},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":74,"y":81,"w":241,"h":260},
+	"sourceSize": {"w":389,"h":424}
+},
+{
+	"filename": "ShengLi0003.png",
+	"frame": {"x":243,"y":620,"w":165,"h":178},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":121,"w":165,"h":178},
+	"sourceSize": {"w":389,"h":424}
+},
+{
+	"filename": "ShengLi0004.png",
+	"frame": {"x":243,"y":426,"w":179,"h":192},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":103,"y":114,"w":179,"h":192},
+	"sourceSize": {"w":389,"h":424}
+},
+{
+	"filename": "ShengLi0005.png",
+	"frame": {"x":243,"y":620,"w":165,"h":178},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":121,"w":165,"h":178},
+	"sourceSize": {"w":389,"h":424}
+},
+{
+	"filename": "ShengLi0006.png",
+	"frame": {"x":243,"y":620,"w":165,"h":178},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":110,"y":121,"w":165,"h":178},
+	"sourceSize": {"w":389,"h":424}
+}],
+"meta": {
+	"app": "http://www.texturepacker.com",
+	"version": "1.0",
+	"image": "shengli.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":1024},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8e10c074aa7b491918f276ff49de9733$"
+}
+}

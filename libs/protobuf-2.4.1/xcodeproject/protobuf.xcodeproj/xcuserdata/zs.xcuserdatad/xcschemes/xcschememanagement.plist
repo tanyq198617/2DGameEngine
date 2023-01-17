@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>protobuf-full-ios.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
+		<key>protobuf-full-mac.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
+		</dict>
+		<key>protobuf-lite-ios.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
+		<key>protobuf-lite-mac.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>8</integer>
+		</dict>
+		<key>protoc.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>9</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>D932DDA41504690900476829</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9656F5D16D7B43600F882CF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D97CBEC1147E22A100BCB5FB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9EE149D16A8F81B003C65F9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9EE14F616A8F82C003C65F9</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>

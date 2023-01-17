@@ -1,0 +1,11 @@
+//
+// Prefix header for all source files of the 'HoolaiEngineMac' target in the 'HoolaiEngineMac' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+#ifndef __MAC_OS_X_VERSION_MAX_ALLOWED
+#define __MAC_OS_X_VERSION_MAX_ALLOWED
+#endif

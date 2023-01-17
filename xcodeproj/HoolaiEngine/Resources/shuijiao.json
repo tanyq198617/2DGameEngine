@@ -1,0 +1,468 @@
+{"frames": [
+
+{
+	"filename": "ShuiJiao0001.png",
+	"frame": {"x":0,"y":528,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0002.png",
+	"frame": {"x":385,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0003.png",
+	"frame": {"x":316,"y":352,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0004.png",
+	"frame": {"x":407,"y":264,"w":79,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":79,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0005.png",
+	"frame": {"x":326,"y":264,"w":79,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":79,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0006.png",
+	"frame": {"x":0,"y":264,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0007.png",
+	"frame": {"x":0,"y":176,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0008.png",
+	"frame": {"x":427,"y":88,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0009.png",
+	"frame": {"x":0,"y":88,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0010.png",
+	"frame": {"x":348,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0011.png",
+	"frame": {"x":348,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0012.png",
+	"frame": {"x":348,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0013.png",
+	"frame": {"x":348,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0014.png",
+	"frame": {"x":348,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0015.png",
+	"frame": {"x":261,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0016.png",
+	"frame": {"x":174,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0017.png",
+	"frame": {"x":342,"y":88,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0018.png",
+	"frame": {"x":417,"y":176,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0019.png",
+	"frame": {"x":334,"y":176,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0020.png",
+	"frame": {"x":245,"y":264,"w":79,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":79,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0021.png",
+	"frame": {"x":237,"y":352,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0022.png",
+	"frame": {"x":308,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0023.png",
+	"frame": {"x":231,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0024.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0025.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0026.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0027.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0028.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0029.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0030.png",
+	"frame": {"x":154,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0031.png",
+	"frame": {"x":77,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0032.png",
+	"frame": {"x":158,"y":352,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0033.png",
+	"frame": {"x":79,"y":352,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0034.png",
+	"frame": {"x":164,"y":264,"w":79,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":79,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0035.png",
+	"frame": {"x":251,"y":176,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0036.png",
+	"frame": {"x":168,"y":176,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0037.png",
+	"frame": {"x":257,"y":88,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0038.png",
+	"frame": {"x":87,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0039.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0040.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0041.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0042.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0043.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0044.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0045.png",
+	"frame": {"x":0,"y":0,"w":85,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":85,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0046.png",
+	"frame": {"x":172,"y":88,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0047.png",
+	"frame": {"x":87,"y":88,"w":83,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":83,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0048.png",
+	"frame": {"x":85,"y":176,"w":81,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":81,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0049.png",
+	"frame": {"x":83,"y":264,"w":79,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":79,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0050.png",
+	"frame": {"x":0,"y":352,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0051.png",
+	"frame": {"x":435,"y":0,"w":77,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":77,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0052.png",
+	"frame": {"x":0,"y":440,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0053.png",
+	"frame": {"x":395,"y":352,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0054.png",
+	"frame": {"x":395,"y":352,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0055.png",
+	"frame": {"x":395,"y":352,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0056.png",
+	"frame": {"x":395,"y":352,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+},
+{
+	"filename": "ShuiJiao0057.png",
+	"frame": {"x":395,"y":352,"w":75,"h":86},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":75,"h":86},
+	"sourceSize": {"w":85,"h":88}
+}],
+"meta": {
+	"app": "http://www.texturepacker.com",
+	"version": "1.0",
+	"image": "shuijiao.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":1024},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:169fc9893ebc720600c466a1ddbbcae3$"
+}
+}

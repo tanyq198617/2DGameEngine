@@ -1,0 +1,12 @@
+exports.EntityManager = hoolai.EntityManager;
+exports.Entity = hoolai.Entity;
+exports.TweenSystem = hoolai.TweenSystem;
+exports.Texture = hoolai.Texture;
+exports.SpriteFrame = hoolai.SpriteFrame;
+exports.Director2D = hoolai.Director2D;
+exports.SceneManager = hoolai.SceneManager;
+exports.NotificationCenter = hoolai.NotificationCenter;
+exports.Timer = hoolai.Timer;
+exports.SpriteFrameAnimation = hoolai.SpriteFrameAnimation;
+exports.RepeateAnimation = hoolai.RepeateAnimation;
+exports.log = hoolai.log;

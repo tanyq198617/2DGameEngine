@@ -1,0 +1,1026 @@
+diff --git a/src/android/HLResourceManager_android.cpp b/src/android/HLResourceManager_android.cpp
+index 332d6b1..bda6230 100644
+--- a/src/android/HLResourceManager_android.cpp
++++ b/src/android/HLResourceManager_android.cpp
+@@ -9,7 +9,7 @@
+ 
+ using namespace std;
+ 
+-AAssetManager* s_assetmanager;
++static AAssetManager* s_assetmanager;
+ 
+ extern "C" {
+     JNIEXPORT void JNICALL
+@@ -63,7 +63,7 @@ HLFileData* HLResourceManager::getFileDataInAppBundle(const char* file)
+ 	return NULL;
+ }
+ 
+-bool HLResourceManager::fileInAppBundle(const char* file)
++bool HLResourceManager::fileExistsInAsset(const char* file)
+ {
+ 	bool ret = false;
+ 	if (s_assetmanager)
+diff --git a/src/core/HLAnimateSystem.cpp b/src/core/HLAnimateSystem.cpp
+index 31938f8..e6546ce 100755
+--- a/src/core/HLAnimateSystem.cpp
++++ b/src/core/HLAnimateSystem.cpp
+@@ -18,16 +18,20 @@ NS_HL_BEGIN
+ 
+ std::vector<HLAnimation*> HLAnimateSystem::_animations;
+ 
+-void HLAnimation::run(HLEntity* target)
++void HLAnimation::run(HLEntity* target, animationcallback callback, void *context)
+ {
+     _target = target;
++    _callback = callback;
++    _context = context;
+     HLAnimateSystem::addAnimation(this);
+ }
+ 
+-void HLRepeateAnimation::run(HLEntity* target)
++void HLRepeateAnimation::run(HLEntity* target, animationcallback callback, void *context)
+ {
+     _target = target;
+     _innerAnimation->_target = target;
++    _callback = callback;
++    _context = context;
+     HLAnimateSystem::addAnimation(this);
+ }
+ 
+@@ -51,7 +55,7 @@ HLSpriteFrameAnimation::~HLSpriteFrameAnimation()
+ #endif
+ }
+ 
+-void HLSpriteFrameAnimation::run(HLEntity* target)
++void HLSpriteFrameAnimation::run(HLEntity* target, animationcallback callback, void *context)
+ {
+     if (_restoreTexture)
+     {
+@@ -66,7 +70,7 @@ void HLSpriteFrameAnimation::run(HLEntity* target)
+         _originSpriteFrame->_rotated = target->getProperty<bool>("textureRotated");
+     }
+     
+-    HLAnimation::run(target);
++    HLAnimation::run(target, callback, context);
+ }
+ 
+ void HLSpriteFrameAnimation::update(float progress)
+diff --git a/src/core/HLAnimateSystem.h b/src/core/HLAnimateSystem.h
+index a599f68..ab908d1 100755
+--- a/src/core/HLAnimateSystem.h
++++ b/src/core/HLAnimateSystem.h
+@@ -12,7 +12,6 @@
+ #include "HLMacros.h"
+ #include <vector>
+ #include "HLObject.h"
+-#include "HLDelegate.h"
+ 
+ NS_HL_BEGIN
+ 
+@@ -20,13 +19,16 @@ class HLEntity;
+ class HLArray;
+ class HLSpriteFrame;
+ 
++typedef void(*animationcallback)(void *context);
++
+ class HLAnimation
+ {
+ public:
+     float _elapsed;
+     HLEntity* _target;
+     float _duration;
+-    CDelegate0 _callback;
++    animationcallback _callback;
++    void *_context;
+ public:
+     HLAnimation(float duration):_duration(duration) {_elapsed = 0;};
+     HLAnimation():_duration(0),_elapsed(0) {};
+@@ -40,13 +42,15 @@ public:
+         _elapsed += dt;
+         update(MIN(1, _elapsed / _duration));
+         if (_elapsed > _duration) {
+-            _callback();
++            if (_callback) {
++                (*_callback)(_context);
++            }
+             return false;
+         }
+         return true;
+     }
+     
+-    virtual void run(HLEntity* target);
++    virtual void run(HLEntity* target, animationcallback callback = 0, void *context = 0);
+ };
+ 
+ class HLSpriteFrameAnimation:public HLAnimation
+@@ -64,7 +68,7 @@ public:
+     }
+     virtual ~HLSpriteFrameAnimation();
+     virtual void update(float progress);
+-    virtual void run(HLEntity* target);
++    virtual void run(HLEntity* target, animationcallback callback = 0, void *context = 0);
+ };
+ 
+ class HLRepeateAnimation:public HLAnimation
+@@ -74,7 +78,7 @@ private:
+     int _repeatCount;
+     int _counter;
+ public:
+-    HLRepeateAnimation(HLAnimation* animation, int repeatCount)
++    HLRepeateAnimation(HLAnimation* animation, int repeatCount, animationcallback callback = 0, void *context = 0)
+     {
+         _repeatCount = repeatCount;
+         _counter = 0;
+@@ -105,7 +109,10 @@ public:
+                 _counter++;
+                 if (_counter == _repeatCount)
+                 {
+-                    _callback();
++                    if (_callback) 
++                    {
++                        (*_callback)(_context);
++                    }
+                     return false;
+                 }
+             }
+@@ -114,7 +121,7 @@ public:
+         return true;
+     }
+     
+-    virtual void run(HLEntity* target);
++    virtual void run(HLEntity* target, animationcallback callback = 0, void *context = 0);
+ };
+ 
+ class HLAnimateSystem
+diff --git a/src/core/HLResourceManager.cpp b/src/core/HLResourceManager.cpp
+index cb8cfb9..2566555 100644
+--- a/src/core/HLResourceManager.cpp
++++ b/src/core/HLResourceManager.cpp
+@@ -20,14 +20,6 @@
+ #endif
+ #include "HLApplication.h"
+ #include <errno.h>
+-#ifdef TARGET_ANDROID
+-#include "android/asset_manager.h"
+-#include "android/asset_manager_jni.h"
+-#endif
+-
+-#ifdef TARGET_ANDROID
+-extern AAssetManager* s_assetmanager;
+-#endif
+ 
+ NS_HL_BEGIN
+ 
+@@ -35,85 +27,6 @@ NS_HL_BEGIN
+ #define HAS_STRUCT_PACK
+ #endif
+ 
+-class FileReader
+-{
+-public:
+-    virtual ~FileReader() {}
+-    virtual bool open(const char* path) = 0;
+-    virtual void read(char* buffer, size_t size) = 0;
+-    virtual void seek(size_t offset) = 0;
+-    virtual void close() = 0;
+-};
+-
+-class RawFileReader: public FileReader
+-{
+-private:
+-    ifstream mStream;
+-public:
+-    virtual ~RawFileReader()
+-    {
+-        mStream.close();
+-    }
+-    virtual bool open(const char* path)
+-    {
+-        mStream.open(path, ios_base::binary);
+-        if (mStream.fail())
+-        {
+-            mStream.close();
+-            return false;
+-        }
+-        return true;
+-    }
+-    virtual void read(char* buffer, size_t size)
+-    {
+-        mStream.read(buffer, size);
+-    }
+-    virtual void seek(size_t offset)
+-    {
+-        mStream.seekg(offset);
+-    }
+-    virtual void close()
+-    {
+-        mStream.close();
+-    }
+-};
+-
+-#ifdef TARGET_ANDROID
+-class AndroidAssetReader: public FileReader
+-{
+-private:
+-    AAsset* mAsset {nullptr};
+-public:
+-    virtual ~AndroidAssetReader()
+-    {
+-        if (mAsset)
+-        {
+-            AAsset_close(mAsset);
+-        }
+-    }
+-    virtual bool open(const char* path)
+-    {
+-        HLLOG("AndroidAssetReader open %s", path);
+-        mAsset = AAssetManager_open(s_assetmanager, path, AASSET_MODE_UNKNOWN);
+-        HLLOG("AndroidAssetReader open 0x%x", mAsset);
+-        return mAsset != nullptr;
+-    }
+-    virtual void read(char* buffer, size_t size)
+-    {
+-        AAsset_read(mAsset, (void*)buffer, size);
+-    }
+-    virtual void seek(size_t offset)
+-    {
+-        AAsset_seek(mAsset, offset, SEEK_SET);
+-    }
+-    virtual void close()
+-    {
+-        AAsset_close(mAsset);
+-        mAsset = nullptr;
+-    }
+-};
+-#endif
+-
+ class HLResourcePackageLoader
+ {
+ private:
+@@ -134,9 +47,8 @@ private:
+ #ifdef HAS_STRUCT_PACK
+ #pragma pack(pop)
+ #endif
+-    std::string savepath;
+     std::vector<struct resfileindex*> files;
+-    FileReader** fss;
++    FILE** fss;
+     std::vector<std::string> pakfiles;
+     
+     OpenThreads::Mutex mMutex;
+@@ -211,69 +123,58 @@ private:
+     }
+     
+ public:
+-    HLResourcePackageLoader():fss(NULL)
+-    {
+-        header.version = 0;
+-        header.scale = 0.5;
+-    }
+-    
+     HLResourcePackageLoader(const char* filepath):fss(NULL)
+     {
+-        FileReader* reader = nullptr;
+-#ifdef TARGET_ANDROID
+-        if (strncmp(filepath, "apk://", 6) == 0) // read from android assets
++        ifstream in(filepath, ios_base::binary);
++        if (in.fail())
+         {
+-            reader = new AndroidAssetReader();
+-            if (!reader->open(filepath+6))
+-            {
+-                HLLOG("HLResourcePackageLoader: cannot open file in assets %s", filepath);
+-                delete reader;
+-                return;
+-            }
+-        }
+-#endif
+-        if (!reader)
+-        {
+-            reader = new RawFileReader();
+-            if (!reader->open(filepath))
+-            {
+-                HLLOG("HLResourcePackageLoader: cannot open file %s %s", filepath, strerror(errno));
+-                delete reader;
+-                return;
+-            }
++            HLLOG("HLResourcePackageLoader: cannot open file %s %s", filepath, strerror(errno));
++            in.close();
++            return;
+         }
++//        {
++//            std::string content;
++//            char buff[4];
++//            char buff1[100];
++//            in.read(buff1, 100);
++//            for (int i = 0; i < 100; ++i) {
++//                sprintf(buff, "%02hhx", buff1[i]);
++//                content += buff;
++//            }
++//            HLLOG("HLResourcePackageLoader: file: %s",content.c_str());
++//        }
++//        in.seekg(0, ios_base::beg);
+         char magic[6];
+-        reader->read(magic, 6);
++        in.read(magic, 6);
+         if (memcmp(magic, "!hlidx", 6))
+         {
+             HLLOG("HLResourcePackageLoader: invalid idx file %s", filepath);
+-            reader->close();
+-            delete reader;
++            in.close();
+             return;
+         }
+-        reader->read(reinterpret_cast<char*>(&header), sizeof(header));
++        in.read(reinterpret_cast<char*>(&header), sizeof(header));
+         LittleEndianToNative<sizeof(header.version)>(&header.version);
+         LittleEndianToNative<sizeof(header.scale)>(&header.scale);
+         memset(header.extend, 0, 24);
+         uint16_t size;
+-        reader->read(reinterpret_cast<char*>(&size), 2);
++        in.read(reinterpret_cast<char*>(&size), 2);
+         LittleEndianToNative<2>(&size);
+         for (int i = 0; i < size; ++i)
+         {
+             uint8_t len;
+-            reader->read(reinterpret_cast<char*>(&len), 1);
++            in.read(reinterpret_cast<char*>(&len), 1);
+             char* buffer = new char[len+5];
+             buffer[len] = '.';
+             buffer[len+1] = 'p';
+             buffer[len+2] = 'a';
+             buffer[len+3] = 'k';
+             buffer[len+4] = '\0';
+-            reader->read(buffer, len);
++            in.read(buffer, len);
+             pakfiles.push_back(buffer);
+             delete buffer;
+         }
+         uint32_t count;
+-        reader->read(reinterpret_cast<char*>(&count), 4);
++        in.read(reinterpret_cast<char*>(&count), 4);
+         LittleEndianToNative<4>(&count);
+         files.resize(count);
+         for (int i = 0; i < count; ++i)
+@@ -281,18 +182,17 @@ public:
+             struct resfileindex *pointer = files[i] = new struct resfileindex;
+             pointer->retaincount = 1;
+             pointer->version = 0;
+-            reader->read(reinterpret_cast<char*>(pointer), 27);
+-            LittleEndianToNative<2>(&pointer->file);
++            in.read(reinterpret_cast<char*>(pointer), 27);
++            LittleEndianToNative<4>(&pointer->file);
+             LittleEndianToNative<4>(&pointer->offset);
+             LittleEndianToNative<4>(&pointer->size);
+             if (pointer->compressed)
+             {
+-                reader->read(reinterpret_cast<char*>(&pointer->relsize), 4);
++                in.read(reinterpret_cast<char*>(&pointer->relsize), 4);
+                 LittleEndianToNative<4>(&pointer->relsize);
+             }
+         }
+-        reader->close();
+-        delete reader;
++        in.close();
+         HLLOG("HLResourcePackageLoader version: %d", header.version);
+     }
+     
+@@ -355,7 +255,7 @@ public:
+         {
+             for (std::vector<std::string>::iterator itr = pakfiles.begin(); itr != pakfiles.end(); ++itr)
+             {
+-                if (HLResourceManager::getSingleton()->fileInAppBundle((*itr).c_str()))
++                if (HLResourceManager::getSingleton()->fileExistsInAsset((*itr).c_str()))
+                 {
+                     HLResourceManager::getSingleton()->copyFileInAssetToWritablePath((*itr).c_str());
+                 }
+@@ -364,11 +264,6 @@ public:
+ #endif
+     }
+     
+-    void setSavePath(std::string path)
+-    {
+-        savepath = path;
+-    }
+-    
+     bool updateWithLoader(HLResourcePackageLoader* loader)
+     {
+         HLLOG("updateWithLoader %d %d", header.version, loader->header.version);
+@@ -377,8 +272,10 @@ public:
+             if (header.version < loader->header.version)
+             {
+                 header.version = loader->header.version;
++                delete loader;
+                 return true;
+             }
++            delete loader;
+             return false;
+         }
+         int filesnum = (int)pakfiles.size();
+@@ -522,6 +419,8 @@ public:
+         
+         header.version = MAX(header.version, loader->header.version);
+         
++        delete loader;
++        
+         if (fss)
+         {
+             for (int i = 0; i < filesnum; ++i)
+@@ -530,11 +429,10 @@ public:
+ //                fclose(fss[i]);
+                 if (fss[i])
+                 {
+-                    fss[i]->close();
+-                    delete fss[i];
++                    fclose(fss[i]);
+                 }
+             }
+-            delete [] fss;
++            delete fss;
+             fss = NULL;
+         }
+         return true;
+@@ -543,13 +441,18 @@ public:
+     bool updateWithFile(const char* path)
+     {
+         HLResourcePackageLoader* loader = new HLResourcePackageLoader(path);
+-        bool ret = updateWithLoader(loader);
+-        delete loader;
+-        return ret;
++        return updateWithLoader(loader);
+     }
+     
+-    bool removeWithLoader(HLResourcePackageLoader* loader)
++    bool removeWithFile(const char* path)
+     {
++        HLResourcePackageLoader* loader = new HLResourcePackageLoader(path);
++        if (loader->pakfiles.size() == 0)
++        {
++            delete loader;
++            return false;
++        }
++        
+         int filesnum = (int)pakfiles.size();
+         
+         std::vector<uint16_t> rmfiles;
+@@ -588,42 +491,20 @@ public:
+         {
+             for (int i = 0; i < filesnum; ++i)
+             {
+-                //                fss[i].close();
++//                fss[i].close();
+                 if (fss[i])
+                 {
+-                    fss[i]->close();
+-                    delete fss[i];
++                    fclose(fss[i]);
+                 }
+-                //                fclose(fss[i]);
++//                fclose(fss[i]);
+             }
+-            delete [] fss;
++            delete fss;
+             fss = NULL;
+         }
+         
+         return true;
+     }
+     
+-    bool removeWithFile(const char* path)
+-    {
+-        HLResourcePackageLoader* loader = new HLResourcePackageLoader(path);
+-        if (loader->pakfiles.size() == 0)
+-        {
+-            delete loader;
+-            return false;
+-        }
+-        
+-        return removeWithLoader(loader);
+-        
+-    }
+-    
+-    void save()
+-    {
+-        if (savepath.length())
+-        {
+-            writeToFile(savepath.c_str());
+-        }
+-    }
+-    
+     void writeToFile(const char* path)
+     {
+         if (files.size() == 0)
+@@ -698,12 +579,11 @@ public:
+ //                fss[i].close();
+                 if (fss[i])
+                 {
+-                    fss[i]->close();
+-                    delete fss[i];
++                    fclose(fss[i]);
+                 }
+ //                fclose(fss[i]);
+             }
+-            delete [] fss;
++            delete fss;
+         }
+     }
+     
+@@ -725,26 +605,13 @@ public:
+             if (!fss)
+             {
+                 size_t size = pakfiles.size();
+-                fss = new FileReader*[size];
++                fss = new FILE*[size];
+                 for (int i = 0; i < size; ++i)
+                 {
+                     char fullpath[MAX_PATH];
+                     HLResourceManager::getSingleton()->getSysPathForFile(pakfiles[i].c_str(), fullpath);
+-#ifdef TARGET_ANDROID
+-                    if (strncmp(fullpath, "apk://", 6) == 0) // read from android assets
+-                    {
+-                        fss[i] = new AndroidAssetReader();
+-                        fss[i]->open(fullpath+6);
+-                    }
+-                    else
+-                    {
+-#endif
+-                        fss[i] = new RawFileReader();
+-                        fss[i]->open(fullpath);
+ //                    fss[i].open(fullpath, ios_base::binary|ios_base::in);
+-#ifdef TARGET_ANDROID
+-                    }
+-#endif
++                    fss[i] = fopen(fullpath, "rb");
+                 }
+             }
+             if (!fss[files[index]->file])
+@@ -775,9 +642,10 @@ public:
+ //        fss[file.file].seekg(file.offset, ios_base::beg);
+ //        fss[file.file].read(reinterpret_cast<char*>(buffer), file.size);
+         mMutex.lock();
+-        fss[file.file]->seek(file.offset);
+-        fss[file.file]->read((char*)buffer, file.size);
++        fseek(fss[file.file], file.offset, SEEK_SET);
++        fread(buffer, file.size, 1, fss[file.file]);
+         mMutex.unlock();
++        
+         if (!file.compressed)
+         {
+             HLFileData* data = new HLFileData();
+@@ -884,113 +752,113 @@ bool HLResourceManager::fileExists(const char* file)
+     return false;
+ }
+ 
+-void HLResourceManager::addResourcePackage(const char* file)
++void HLResourceManager::setResourcePackage(const char* file)
+ {
+-    if (mResLoaders.find(file) != mResLoaders.end())
++    if (mResLoader)
+     {
+-        return;
++        delete mResLoader;
++        mResLoader = NULL;
+     }
+     if (fileExists(file)) // file exists
+     {
+-        std::string idxfile(file);
+-        idxfile += ".i";
+-        idxfile = getSysPathForFile(idxfile.c_str());
++        bool needcopy = false;
++        
++        HLFileData* data = getFileDataInAppBundle(file);
+         
+-        HLResourcePackageLoader* loader = nullptr;
+-        if (fileInAppBundle(file) && idxfile[0]) // compare versions first
++        std::string wpath = mWritablePath+file;
++        if (access(wpath.c_str(), 0) == 0) // index file already in writable path
+         {
+-            HLResourcePackageLoader *loader1 = new HLResourcePackageLoader(getSysPathForFile(file));
+-            HLResourcePackageLoader *loader2 = new HLResourcePackageLoader(idxfile.c_str());
+-            if (loader1->header.version > loader2->header.version)
++            if (data) // if there's also index file in app bundle, then compare the versions
+             {
+-                remove(idxfile.c_str());
+-                loader = loader1;
+-                delete loader2;
++                uint32_t version1 = *reinterpret_cast<uint32_t*>(&data->buffer[6]);
++                LittleEndianToNative<sizeof(uint32_t)>(&version1);
++                ifstream from(wpath.c_str(), ios::binary);
++                uint32_t version2;
++                from.seekg(6);
++                from.read(reinterpret_cast<char*>(&version2), sizeof(uint32_t));
++                from.close();
++                LittleEndianToNative<sizeof(uint32_t)>(&version2);
++#ifdef DEBUG
++                needcopy = true;
++#else
++                if (version1 > version2)
++                {
++                    needcopy = true;
++                }
++#endif
+             }
+-            else
++        }
++        else
++        {
++            if (!data)
+             {
+-                loader = loader2;
+-                delete loader1;
++                data = getFileData(file);
+             }
++            needcopy = true;
+         }
+         
+-        if (!loader)
++        if (needcopy)
+         {
+-            if (idxfile[0])
++            if (access(wpath.c_str(), 0) == 0)
+             {
+-                loader = new HLResourcePackageLoader(idxfile.c_str());
++                HLResourcePackageLoader *loader = new HLResourcePackageLoader(data, true);
++                mResLoader = new HLResourcePackageLoader(wpath.c_str());
++                mResLoader->updateWithLoader(loader);
++                mResLoader->writeToFile(wpath.c_str());
+             }
+             else
+             {
+-                idxfile = mWritablePath + file;
+-                idxfile += ".i";
+-                loader = new HLResourcePackageLoader(getSysPathForFile(file));
++                mResLoader = new HLResourcePackageLoader(data, true);
++                // copy to writable path
++                ofstream to(wpath.c_str(), ios::binary);
++                if (!to)
++                {
++                    return;
++                }
++                to.write(reinterpret_cast<char*>(data->buffer), data->size);
++                to.close();
+             }
++            mResourceVersion = mResLoader->header.version;
++            mResourceScale = mResLoader->header.scale;
++        }
++        else
++        {
++            mResLoader = new HLResourcePackageLoader(wpath.c_str());
++            mResourceVersion = mResLoader->header.version;
++            mResourceScale = mResLoader->header.scale;
+         }
+         
+-        loader->setSavePath(idxfile);
++        mResPackageFile = wpath;
+         
+-        mResLoaders.insert(make_pair(file, loader));
++        if (data)
++            delete data;
+         
+-        if (!mResLoader)
+-        {
+-            mResLoader = new HLResourcePackageLoader();
+-        }
+-        mResLoader->updateWithLoader(loader);
++//        path = getSysPathForFile(file);
+     }
+ }
+ 
+-void HLResourceManager::updateResourcePackage(const char* file, const char* patchfile)
++void HLResourceManager::updateResourcePackage(const char* file)
+ {
+-    auto itr = mResLoaders.find(file);
+-    if (itr == mResLoaders.end())
+-    {
+-        return;
+-    }
+     const char* path = getSysPathForFile(file);
+     if (path[0] && mResLoader)
+     {
+-        if (itr->second->updateWithFile(path))
+-        {
+-            itr->second->save();
+-        }
+-        mResLoader->updateWithLoader(itr->second);
++        if (mResLoader->updateWithFile(path))
++            mResLoader->writeToFile(mResPackageFile.c_str());
+         mResourceVersion = mResLoader->header.version;
+     }
+ }
+ 
+ void HLResourceManager::removeResourcePackage(const char* file)
+ {
+-    auto itr = mResLoaders.find(file);
+-    if (itr == mResLoaders.end())
+-    {
+-        return;
+-    }
+     const char* path = getSysPathForFile(file);
+     if (path[0] && mResLoader)
+     {
+-        mResLoader->removeWithLoader(itr->second);
+-        delete itr->second;
+-        remove(path);
+-        mResLoaders.erase(itr);
+-    }
+-    std::string idxfile(file);
+-    idxfile += ".i";
+-    idxfile = getSysPathForFile(idxfile.c_str());
+-    if (idxfile[0])
+-    {
+-        remove(idxfile.c_str());
+-    }
+-}
+-
+-unsigned long HLResourceManager::getResourceVersionOfPackage(const char* file)
+-{
+-    auto itr = mResLoaders.find(file);
+-    if (itr == mResLoaders.end())
+-    {
+-        return 0;
++        if (mResLoader->removeWithFile(path))
++        {
++            mResLoader->writeToFile(mResPackageFile.c_str());
++            remove(path);
++        }
+     }
+-    return itr->second->header.version;
+ }
+ 
+ void HLResourceManager::getSysPathForFile(const char* file, char path[])
+@@ -1010,14 +878,6 @@ void HLResourceManager::getSysPathForFile(const char* file, char path[])
+             return;
+         }
+     }
+-
+-#if defined(TARGET_WIN32)
+-	if (file[1] == ':' && (file[2] == '\\' || file[2] == '/')) // absolute path for windows
+-	{
+-		strcpy(path, file);
+-		return;
+-	}
+-#endif
+     
+     HLApplication* psharedApp = HLApplication::sharedApplication();
+     const char* languageStr = getLanguageStr(psharedApp->getCurrentLanguage());
+@@ -1044,7 +904,7 @@ void HLResourceManager::getSysPathForFile(const char* file, char path[])
+     }
+     
+ #if defined(TARGET_ANDROID)
+-    if (fileInAppBundle(file))
++    if (fileExistsInAsset(file))
+     {
+         strcpy(path, "apk://");
+         strcat(path, file);
+@@ -1054,7 +914,7 @@ void HLResourceManager::getSysPathForFile(const char* file, char path[])
+     strcpy(path, languageStr);
+     strcat(path, ".lproj/");
+     strcat(path, file);
+-    if (fileInAppBundle(path))
++    if (fileExistsInAsset(path))
+     {
+         int len = strlen(path);
+         memmove(path+6, path, len+1);
+@@ -1110,7 +970,7 @@ const char* HLResourceManager::getSysPathForFile(const char* file)
+     }
+     
+ #if defined(TARGET_ANDROID)
+-    if (fileInAppBundle(file))
++    if (fileExistsInAsset(file))
+     {
+         strcpy(path, "apk://");
+         strcat(path, file);
+@@ -1120,7 +980,7 @@ const char* HLResourceManager::getSysPathForFile(const char* file)
+     strcpy(path, languageStr);
+     strcat(path, ".lproj/");
+     strcat(path, file);
+-    if (fileInAppBundle(path))
++    if (fileExistsInAsset(path))
+     {
+         int len = strlen(path);
+         memmove(path+6, path, len+1);
+@@ -1162,6 +1022,7 @@ const char* HLResourceManager::getWritablePath()
+ void HLResourceManager::initResourcePaths()
+ {
+     initResourcePathsNative();
++    setResourcePackage("res.idx");
+ }
+ 
+ float HLResourceManager::getResourceScale()
+@@ -1177,9 +1038,4 @@ float HLResourceManager::getResourceScale()
+ #endif
+ }
+ 
+-bool HLResourceManager::hasResourcePackage(const char* package)
+-{
+-    return mResLoaders.find(package) != mResLoaders.end();
+-}
+-
+ NS_HL_END
+\ No newline at end of file
+diff --git a/src/core/HLResourceManager.h b/src/core/HLResourceManager.h
+index 4b318f8..1b187dd 100644
+--- a/src/core/HLResourceManager.h
++++ b/src/core/HLResourceManager.h
+@@ -11,7 +11,6 @@
+ 
+ #include <iostream>
+ #include <vector>
+-#include <map>
+ #include "HLMacros.h"
+ #include "HLSingleton.h"
+ #include "HLFileUtil.h"
+@@ -27,7 +26,7 @@ class HLResourceManager:public HLSingleton<HLResourceManager>
+ public:
+     HLFileData* getFileData(const char* file);
+     bool fileExists(const char* file);
+-    void addResourcePackage(const char* file);
++    void setResourcePackage(const char* file);
+     const char* getSysPathForFile(const char* file);
+     void getSysPathForFile(const char* file, char path[]);
+     float getResourceScale();
+@@ -36,10 +35,8 @@ public:
+     void addFileSearchPath(const char* path);
+     const char* getWritablePath();
+     void initialize() {initResourcePaths();}
+-    void updateResourcePackage(const char* package, const char* patchfile);
++    void updateResourcePackage(const char* file);
+     void removeResourcePackage(const char* file);
+-    unsigned long getResourceVersionOfPackage(const char* package);
+-    bool hasResourcePackage(const char* package);
+     
+ #if defined(TARGET_IOS)
+     const char* getBundleFullPath();
+@@ -54,8 +51,8 @@ private:
+     
+     void initResourcePathsNative();
+     HLFileData* getFileDataInAppBundle(const char* file);
+-    bool fileInAppBundle(const char* file);
+ #if defined(TARGET_ANDROID)
++    bool fileExistsInAsset(const char* file);
+     bool copyFileInAssetToWritablePath(const char* file);
+ #endif
+     
+@@ -63,7 +60,6 @@ private:
+     unsigned long mResourceVersion;
+     
+     std::vector<std::string> mFileSearchPaths;
+-    std::map<std::string, HLResourcePackageLoader*> mResLoaders;
+     
+     HLResourcePackageLoader* mResLoader;
+     
+diff --git a/src/ios/HLResourceManager_ios.mm b/src/ios/HLResourceManager_ios.mm
+index 77b3750..9cc9b41 100644
+--- a/src/ios/HLResourceManager_ios.mm
++++ b/src/ios/HLResourceManager_ios.mm
+@@ -30,16 +30,10 @@ void HLResourceManager::initResourcePathsNative()
+ 
+ HLFileData* HLResourceManager::getFileDataInAppBundle(const char* file)
+ {
+-    NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file]];
++    NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingFormat:@"/%@", [NSString stringWithUTF8String:file]];
+     return getFileData([path UTF8String]);
+ }
+ 
+-bool HLResourceManager::fileInAppBundle(const char* file)
+-{
+-    NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file]];
+-    return [[NSFileManager defaultManager] fileExistsAtPath:path];
+-}
+-
+ const char* HLResourceManager::getBundleFullPath()
+ {
+     static NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingString:@"/"];
+diff --git a/src/jsscripting/jswrappers/JSAnimationSystem.cpp b/src/jsscripting/jswrappers/JSAnimationSystem.cpp
+index 035a818..3ad949c 100644
+--- a/src/jsscripting/jswrappers/JSAnimationSystem.cpp
++++ b/src/jsscripting/jswrappers/JSAnimationSystem.cpp
+@@ -86,7 +86,6 @@ void JSSpriteFrameAnimation::jsCreateClass(JSContext *cx, JSObject *globalObj, c
+     
+     static JSFunctionSpec funcs[] = {
+         JS_FN("run", JSSpriteFrameAnimation::jsRun, 1, JSPROP_PERMANENT | JSPROP_READONLY),
+-        JS_FN("setCallback", JSSpriteFrameAnimation::jsSetCallback, 1, JSPROP_PERMANENT | JSPROP_READONLY),
+         JS_FS_END
+     };
+     
+@@ -122,29 +121,6 @@ JSBool JSSpriteFrameAnimation::jsRun(JSContext *cx, uint32_t argc, jsval *vp)
+     return JS_FALSE;
+ }
+ 
+-JSBool JSSpriteFrameAnimation::jsSetCallback(JSContext *cx, uint32_t argc, jsval *vp)
+-{
+-    JSObject* tobj = JS_THIS_OBJECT(cx, vp);
+-    JSSpriteFrameAnimation* thiz = (JSSpriteFrameAnimation*)JS_GetPrivate(tobj);
+-    if (!thiz->getNativeObject())
+-    {
+-        JS_ReportError(cx, "JSRepeateAnimation::jsRun: this is already freed\n");
+-        return JS_FALSE;
+-    }
+-    if (argc == 1)
+-    {
+-        thiz->getNativeObject()->_callback = newDelegate(tobj, JS_ARGV(cx, vp)[0]);
+-        return JS_TRUE;
+-    }
+-    else if (argc == 2)
+-    {
+-        JSObject * o = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]);
+-        thiz->getNativeObject()->_callback = newDelegate(o, JS_ARGV(cx, vp)[1]);
+-        return JS_TRUE;
+-    }
+-    return JS_FALSE;
+-};
+-
+ JSBool JSRepeateAnimation::jsAnimation(JSContext *cx, uint32_t argc, jsval *vp)
+ {
+     if (argc == 2)
+@@ -183,7 +159,6 @@ void JSRepeateAnimation::jsCreateClass(JSContext *cx, JSObject *globalObj, const
+     
+     static JSFunctionSpec funcs[] = {
+         JS_FN("run", JSRepeateAnimation::jsRun, 1, JSPROP_PERMANENT | JSPROP_READONLY),
+-        JS_FN("setCallback", JSSpriteFrameAnimation::jsSetCallback, 1, JSPROP_PERMANENT | JSPROP_READONLY),
+         JS_FS_END
+     };
+     
+@@ -219,27 +194,4 @@ JSBool JSRepeateAnimation::jsRun(JSContext *cx, uint32_t argc, jsval *vp)
+     return JS_FALSE;
+ }
+ 
+-JSBool JSRepeateAnimation::jsSetCallback(JSContext *cx, uint32_t argc, jsval *vp)
+-{
+-    JSObject* tobj = JS_THIS_OBJECT(cx, vp);
+-    JSRepeateAnimation* thiz = (JSRepeateAnimation*)JS_GetPrivate(tobj);
+-    if (!thiz->getNativeObject())
+-    {
+-        JS_ReportError(cx, "JSRepeateAnimation::jsRun: this is already freed\n");
+-        return JS_FALSE;
+-    }
+-    if (argc == 1)
+-    {
+-        thiz->getNativeObject()->_callback = newDelegate(tobj, JS_ARGV(cx, vp)[0]);
+-        return JS_TRUE;
+-    }
+-    else if (argc == 2)
+-    {
+-        JSObject * o = JSVAL_TO_OBJECT(JS_ARGV(cx, vp)[0]);
+-        thiz->getNativeObject()->_callback = newDelegate(o, JS_ARGV(cx, vp)[1]);
+-        return JS_TRUE;
+-    }
+-    return JS_FALSE;
+-};
+-
+ NS_HL_END
+\ No newline at end of file
+diff --git a/src/jsscripting/jswrappers/JSAnimationSystem.h b/src/jsscripting/jswrappers/JSAnimationSystem.h
+index 62eb047..b9a2974 100644
+--- a/src/jsscripting/jswrappers/JSAnimationSystem.h
++++ b/src/jsscripting/jswrappers/JSAnimationSystem.h
+@@ -30,7 +30,6 @@ public:
+     static JSBool jsAnimation(JSContext *cx, uint32_t argc, jsval *vp);
+     static void jsCreateClass(JSContext *cx, JSObject *globalObj, const char *name);
+     static JSBool jsRun(JSContext *cx, uint32_t argc, jsval *vp);
+-    static JSBool jsSetCallback(JSContext *cx, uint32_t argc, jsval *vp);
+ };
+ 
+ class JSRepeateAnimation : public JSCPPWrapper<JSRepeateAnimation, HLRepeateAnimation>
+@@ -39,7 +38,6 @@ public:
+     static JSBool jsAnimation(JSContext *cx, uint32_t argc, jsval *vp);
+     static void jsCreateClass(JSContext *cx, JSObject *globalObj, const char *name);
+     static JSBool jsRun(JSContext *cx, uint32_t argc, jsval *vp);
+-    static JSBool jsSetCallback(JSContext *cx, uint32_t argc, jsval *vp);
+ };
+ 
+ NS_HL_END
+diff --git a/src/mac/HLResourceManager_mac.mm b/src/mac/HLResourceManager_mac.mm
+index 64b3b77..2c7e550 100644
+--- a/src/mac/HLResourceManager_mac.mm
++++ b/src/mac/HLResourceManager_mac.mm
+@@ -16,7 +16,7 @@ void HLResourceManager::initResourcePathsNative()
+     NSString* path = [[NSBundle mainBundle] resourcePath];
+     addFileSearchPath([path UTF8String]);
+     NSString *docPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+-    NSString* dataPath = [[docPath stringByAppendingPathComponent:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"]] stringByAppendingPathComponent:@"data"];
++    NSString* dataPath = [[docPath stringByAppendingPathComponent:@"sq"] stringByAppendingPathComponent:@"data"];
+     addFileSearchPath([dataPath UTF8String]);
+     mWritablePath = [dataPath UTF8String];
+     mWritablePath += "/";
+@@ -28,14 +28,11 @@ void HLResourceManager::initResourcePathsNative()
+ 
+ HLFileData* HLResourceManager::getFileDataInAppBundle(const char* file)
+ {
+-    NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file]];
+-    return getFileData([path UTF8String]);
+-}
+-
+-bool HLResourceManager::fileInAppBundle(const char* file)
+-{
+-    NSString* path = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithUTF8String:file]];
+-    return [[NSFileManager defaultManager] fileExistsAtPath:path];
++    NSString* path = [[NSBundle mainBundle] resourcePath];
++    std::string s = [path UTF8String];
++    s += "/";
++    s += file;
++    return getFileData(s.c_str());
+ }
+ 
+ NS_HL_END
+\ No newline at end of file

@@ -1,0 +1,37 @@
+cmake_minimum_required(VERSION 3.4.3)
+set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
+cmake_policy(SET CMP0003 NEW)
+
+project(HoolaiEngine)
+
+set(CMAKE_MODULE_PATH   "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
+message("CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME} APPLE ${APPLE}")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    set(EMSCRIPTEN 1)
+    add_definitions(-DEMSCRIPTEN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ALLOW_MEMORY_GROWTH=1 --bind")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -s ALLOW_MEMORY_GROWTH=1 --bind")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2")
+    set(CMAKE_EXE_LINKER_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s FULL_ES2=1")
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-O2")
+elseif (ANDROID)
+    add_definitions(-DTARGET_ANDROID)
+elseif (APPLE)
+    option(BUILD_PLATFORM_APPLE_IOS "Generate iOS target" FALSE)
+    if (BUILD_PLATFORM_APPLE_IOS)
+        set(CMAKE_XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/src/ios/Prefix.pch")
+    else()
+        include(MacMacros)
+        set(CMAKE_XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/src/mac/Prefix.pch")
+    endif()
+endif()
+
+add_subdirectory(libs)
+add_subdirectory(src)
+add_subdirectory(samples)
